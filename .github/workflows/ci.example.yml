@@ -1,0 +1,69 @@
+# ==============================================================================
+# Esqueleto de CI para BancoLite (Python / Flask).
+# Renómbralo a `ci.yml` para activarlo. Mientras tenga la extensión `.example`,
+# GitHub no lo ejecuta. Requiere que el proyecto tenga linter y tests configurados
+# (ver docs/conventions/quality-tooling.md y docs/conventions/testing.md).
+# ==============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar dependencias
+        run: pip install -r backend/requirements.txt ruff black
+      - name: Lint
+        run: |
+          ruff check backend
+          black --check backend
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: banco_user
+          POSTGRES_PASSWORD: banco_password
+          POSTGRES_DB: banco_lite
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U banco_user"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar dependencias
+        run: pip install -r backend/requirements.txt pytest pytest-cov
+      - name: Tests
+        env:
+          DB_HOST: localhost
+        run: pytest --cov=backend
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build de imágenes
+        run: docker compose build
