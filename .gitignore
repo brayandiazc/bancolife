@@ -53,10 +53,12 @@ logs/
 *.sqlite
 *.sqlite3
 
-# Environment variables
-.env.local
-.env.production
-.env.staging
+# Environment variables (never commit real values; only .env.example is tracked)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
 
 # Docker
 .dockerignore
