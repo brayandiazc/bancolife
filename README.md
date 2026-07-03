@@ -1,179 +1,170 @@
-# 🏦 BancoLite - Sistema Bancario Simple
+# 🏦 BancoLite
 
-Una aplicación fullstack que simula las operaciones básicas de un banco, construida con Flask, PostgreSQL y JavaScript vanilla.
+Aplicación bancaria fullstack (educativa) que simula clientes, cuentas y
+transferencias, construida con Flask, PostgreSQL y JavaScript vanilla, orquestada
+con Docker Compose.
 
-## 📋 Características
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![Docker](https://img.shields.io/badge/docker-compose-2496ED)
 
-- **Gestión de Clientes**: CRUD completo para clientes bancarios
-- **Gestión de Cuentas**: Crear y gestionar cuentas bancarias
-- **Transferencias**: Realizar transferencias entre cuentas
-- **Interfaz Web**: Frontend moderno y responsivo
-- **API REST**: Backend con endpoints JSON
-- **Base de Datos**: PostgreSQL con persistencia de datos
+## Tabla de Contenidos
 
-## 🏗️ Arquitectura
+- [Descripción](#descripción)
+- [Características](#características)
+- [Requisitos Previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Configuración](#configuración)
+- [Uso](#uso)
+- [Arquitectura](#arquitectura)
+- [Stack Tecnológico](#stack-tecnológico)
+- [API](#api)
+- [Testing](#testing)
+- [Contribución](#contribución)
+- [Troubleshooting](#troubleshooting)
+- [Roadmap](#roadmap)
+- [Documentación](#documentación)
+- [Soporte](#soporte)
+- [Versionado](#versionado)
+- [Autores](#autores)
+- [Licencia](#licencia)
 
-```
-banco-lite/
-├── backend/          # API Flask + SQLAlchemy
-├── frontend/         # HTML + JavaScript + CSS
-├── docker-compose.yml # Orquestación de servicios
-└── .env             # Variables de entorno
-```
+## Descripción
 
-## 🚀 Instalación y Ejecución
+BancoLite es un proyecto **educativo** que muestra, de punta a punta, cómo se
+construye una aplicación bancaria mínima: una API REST en Flask que gestiona
+clientes, cuentas y transferencias sobre PostgreSQL, y un frontend en JavaScript
+vanilla que la consume. Todo el entorno se levanta con un solo comando gracias a
+Docker Compose.
 
-### Prerrequisitos
+> ⚠️ Es un proyecto didáctico: **no incluye autenticación** y no debe desplegarse
+> en un entorno público sin endurecerlo. Ver [`docs/architecture/auth.md`](docs/architecture/auth.md).
 
-- Docker y Docker Compose
-- Python 3.11+ (para desarrollo local)
+### Flujo de Funcionamiento
 
-### Ejecución con Docker (Recomendado)
-
-1. **Clonar el repositorio:**
-
-   ```bash
-   git clone <url-del-repositorio>
-   cd bancolife
-   ```
-
-2. **Configurar variables de entorno:**
-
-   ```bash
-   # El archivo .env ya está configurado con valores por defecto
-   # Puedes modificarlo según tus necesidades
-   ```
-
-3. **Ejecutar la aplicación:**
-
-   ```bash
-   docker-compose up --build
-   ```
-
-4. **Acceder a la aplicación:**
-   - Frontend: http://localhost
-   - Backend API: http://localhost:5000
-   - Base de datos: localhost:5432
-
-### Desarrollo Local
-
-1. **Crear ambiente virtual:**
-
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # En Windows: venv\Scripts\activate
-   ```
-
-2. **Instalar dependencias:**
-
-   ```bash
-   cd backend
-   pip install -r requirements.txt
-   ```
-
-3. **Configurar base de datos PostgreSQL:**
-
-   - Instalar PostgreSQL
-   - Crear base de datos `banco_lite`
-   - Configurar variables de entorno en `.env`
-
-4. **Ejecutar backend:**
-
-   ```bash
-   cd backend
-   python app.py
-   ```
-
-5. **Ejecutar frontend:**
-   ```bash
-   cd frontend
-   python -m http.server 8000
-   ```
-
-## 📚 API Endpoints
-
-### Clientes
-
-- `GET /clientes` - Obtener todos los clientes
-- `POST /clientes` - Crear nuevo cliente
-- `GET /clientes/{id}` - Obtener cliente específico
-
-### Cuentas
-
-- `GET /cuentas` - Obtener todas las cuentas
-- `POST /cuentas` - Crear nueva cuenta
-- `GET /cuentas/{id}` - Obtener cuenta específica
-
-### Transferencias
-
-- `GET /transferencias` - Obtener todas las transferencias
-- `POST /transferencias` - Realizar transferencia
-
-### Salud
-
-- `GET /health` - Verificar estado de la API
-
-## 🗄️ Base de Datos
-
-### Tablas
-
-**clientes**
-
-- `id` (Primary Key)
-- `nombre` (String)
-- `correo` (String, Unique)
-
-**cuentas**
-
-- `id` (Primary Key)
-- `cliente_id` (Foreign Key)
-- `saldo` (Float)
-
-**transferencias**
-
-- `id` (Primary Key)
-- `cuenta_origen` (Foreign Key)
-- `cuenta_destino` (Foreign Key)
-- `monto` (Float)
-- `fecha` (DateTime)
-
-## 🔧 Variables de Entorno
-
-```env
-POSTGRES_USER=banco_user
-POSTGRES_PASSWORD=banco_password
-POSTGRES_DB=banco_lite
-DB_HOST=db
-DB_PORT=5432
-FLASK_ENV=development
-FLASK_DEBUG=1
+```mermaid
+graph LR
+    A[Usuario] -->|fetch / JSON| B[Frontend Nginx]
+    B --> C[API Flask]
+    C -->|SQLAlchemy| D[(PostgreSQL)]
+    D -->|Respuesta| C
+    C -->|JSON| A
 ```
 
-## 🐳 Comandos Docker Útiles
+## Características
+
+- ✅ **Gestión de Clientes**: crear y listar clientes (correo único).
+- ✅ **Gestión de Cuentas**: crear y listar cuentas asociadas a un cliente.
+- ✅ **Transferencias**: transferir entre cuentas con validación de saldo.
+- ✅ **API REST**: endpoints JSON con manejo de errores.
+- ✅ **Persistencia**: PostgreSQL con volumen Docker.
+- ✅ **Interfaz Web**: frontend responsivo en JS vanilla.
+- 📋 Autenticación y tests automatizados (ver [Roadmap](#roadmap)).
+
+## Requisitos Previos
+
+- **Docker** y **Docker Compose** (v2).
+- Opcional para desarrollo local sin Docker: **Python 3.11+** y **PostgreSQL 15+**.
+
+## Instalación
+
+### 1. Clonar el repositorio
 
 ```bash
-# Construir y ejecutar
-docker-compose up --build
-
-# Ejecutar en segundo plano
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-
-# Detener servicios
-docker-compose down
-
-# Eliminar volúmenes (cuidado: borra datos)
-docker-compose down -v
-
-# Reconstruir un servicio específico
-docker-compose up --build backend
+git clone https://github.com/brayandiazc/bancolife.git
+cd bancolife
 ```
 
-## 🧪 Pruebas
+### 2. Configurar variables de entorno
 
-### Crear un Cliente
+```bash
+cp .env.example .env
+# Edita .env si necesitas cambiar credenciales o puertos
+```
+
+### 3. Levantar la aplicación
+
+```bash
+docker-compose up --build
+```
+
+## Configuración
+
+Las variables de entorno se documentan en [`.env.example`](.env.example). Cópialo
+a `.env` y ajusta los valores.
+
+| Variable            | Descripción                          | Valor por defecto |
+| ------------------- | ------------------------------------ | ----------------- |
+| `POSTGRES_USER`     | Usuario de PostgreSQL                | `banco_user`      |
+| `POSTGRES_PASSWORD` | Contraseña de PostgreSQL             | `banco_password`  |
+| `POSTGRES_DB`       | Nombre de la base de datos           | `banco_lite`      |
+| `DB_HOST`           | Host de la base (`db` en Compose)    | `db`              |
+| `DB_PORT`           | Puerto de la base                    | `5432`            |
+| `FLASK_ENV`         | Entorno de Flask                     | `development`     |
+| `FLASK_DEBUG`       | Modo debug (`1`/`0`)                 | `1`               |
+
+> Nunca subas tu archivo `.env` con valores reales al repositorio. Ver
+> [SECURITY.md](SECURITY.md) y [`docs/conventions/secrets.md`](docs/conventions/secrets.md).
+
+## Uso
+
+Con los contenedores levantados:
+
+- **Frontend**: <http://localhost>
+- **API**: <http://localhost:5000>
+- **Base de datos**: `localhost:5432`
+
+### Desarrollo local (sin Docker)
+
+```bash
+python -m venv venv && source venv/bin/activate
+pip install -r backend/requirements.txt
+# Asegúrate de tener PostgreSQL corriendo y DB_HOST=localhost en .env
+python backend/app.py
+```
+
+## Arquitectura
+
+Tres servicios orquestados con Docker Compose (`frontend`, `backend`, `db`).
+Detalle completo en [`docs/architecture/architecture.md`](docs/architecture/architecture.md).
+
+```
+bancolife/
+├── backend/           # API Flask + SQLAlchemy + Pydantic
+├── frontend/          # HTML + CSS + JS vanilla (servido por Nginx)
+├── docs/              # Documentación del proyecto
+├── docker-compose.yml # Orquestación de servicios
+└── .env.example       # Contrato de variables de entorno
+```
+
+## Stack Tecnológico
+
+- **Backend**: Python 3.11, Flask 3.0, SQLAlchemy 2.0, Pydantic 2.5, Flask-CORS.
+- **Frontend**: HTML5, CSS3, JavaScript ES6+, Nginx.
+- **Base de datos**: PostgreSQL 15.
+- **Infraestructura**: Docker, Docker Compose.
+
+Inventario completo (con versiones y justificación) en
+[`docs/architecture/stack.md`](docs/architecture/stack.md).
+
+## API
+
+| Método | Endpoint            | Descripción                    |
+| ------ | ------------------- | ------------------------------ |
+| GET    | `/clientes`         | Listar clientes                |
+| POST   | `/clientes`         | Crear cliente                  |
+| GET    | `/clientes/:id`     | Obtener cliente                |
+| GET    | `/cuentas`          | Listar cuentas                 |
+| POST   | `/cuentas`          | Crear cuenta                   |
+| GET    | `/cuentas/:id`      | Obtener cuenta                 |
+| GET    | `/transferencias`   | Listar transferencias          |
+| POST   | `/transferencias`   | Realizar transferencia         |
+| GET    | `/health`           | Estado de la API               |
+
+Contrato completo en [`docs/architecture/api.md`](docs/architecture/api.md).
+
+**Ejemplo — crear un cliente:**
 
 ```bash
 curl -X POST http://localhost:5000/clientes \
@@ -181,59 +172,83 @@ curl -X POST http://localhost:5000/clientes \
   -d '{"nombre": "Juan Pérez", "correo": "juan@email.com"}'
 ```
 
-### Crear una Cuenta
+## Testing
+
+La suite de tests aún no está implementada (ver [Roadmap](#roadmap)). Las
+convenciones a seguir están en [`docs/conventions/testing.md`](docs/conventions/testing.md):
 
 ```bash
-curl -X POST http://localhost:5000/cuentas \
-  -H "Content-Type: application/json" \
-  -d '{"cliente_id": 1, "saldo": 1000.00}'
+pytest                 # Ejecutar tests (cuando existan)
+pytest --cov=backend   # Con reporte de cobertura
 ```
 
-### Realizar Transferencia
+## Contribución
+
+Lee la [Guía de Contribución](CONTRIBUTING.md) para conocer el flujo Git Flow, los
+estándares de código, el formato de commits (Conventional Commits) y el proceso de
+Pull Requests.
+
+## Troubleshooting
+
+**Los puertos 80, 5000 o 5432 están ocupados**
 
 ```bash
-curl -X POST http://localhost:5000/transferencias \
-  -H "Content-Type: application/json" \
-  -d '{"cuenta_origen": 1, "cuenta_destino": 2, "monto": 500.00}'
+# Detén el proceso que los use o cambia los puertos en docker-compose.yml
+docker-compose down
 ```
 
-## 🛠️ Tecnologías Utilizadas
+**La API no conecta a la base de datos**
 
-- **Backend**: Flask, SQLAlchemy, PostgreSQL
-- **Frontend**: HTML5, CSS3, JavaScript ES6+
-- **Base de Datos**: PostgreSQL
-- **Contenedores**: Docker, Docker Compose
-- **Servidor Web**: Nginx
+```bash
+docker-compose logs -f db      # Revisa el estado de PostgreSQL
+docker-compose logs -f backend # Revisa el arranque del backend
+```
 
-## 📝 Notas de Desarrollo
+### Obtener ayuda
 
-- La aplicación está diseñada para ser simple y educativa
-- No incluye autenticación ni autorización (para simplicidad)
-- Los datos se persisten en un volumen de Docker
-- CORS está habilitado para desarrollo local
-- El frontend se comunica con el backend vía fetch API
+1. Revisa la [documentación](docs/README.md).
+2. Revisa los logs: `docker-compose logs`.
+3. Abre un [issue](https://github.com/brayandiazc/bancolife/issues) o escribe a brayandiazc@gmail.com.
 
-## 🤝 Contribuir
+## Roadmap
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+Visión y próximos pasos en [`docs/product/roadmap.md`](docs/product/roadmap.md).
 
-## 📄 Licencia
+## Documentación
 
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
+Toda la documentación vive en [`docs/`](docs/README.md):
 
-## 🆘 Soporte
+| Documento                                                                | Responde a                     |
+| ------------------------------------------------------------------------ | ------------------------------ |
+| [`docs/architecture/architecture.md`](docs/architecture/architecture.md) | ¿Cómo está construido?         |
+| [`docs/architecture/stack.md`](docs/architecture/stack.md)               | ¿Con qué tecnologías?          |
+| [`docs/architecture/database.md`](docs/architecture/database.md)         | ¿Qué entidades y relaciones?   |
+| [`docs/architecture/api.md`](docs/architecture/api.md)                   | ¿Qué endpoints expone?         |
+| [`docs/architecture/auth.md`](docs/architecture/auth.md)                 | ¿Cómo se autentica?            |
+| [`docs/product/roadmap.md`](docs/product/roadmap.md)                     | ¿Hacia dónde va?               |
+| [`docs/decisions/`](docs/decisions/README.md)                            | ¿Por qué cada decisión?        |
+| [`docs/conventions/`](docs/conventions/README.md)                        | ¿Cómo trabajamos en este repo? |
 
-Si encuentras algún problema o tienes preguntas:
+## Soporte
 
-1. Revisa los logs: `docker-compose logs`
-2. Verifica la conectividad de la base de datos
-3. Asegúrate de que los puertos 80, 5000 y 5432 estén disponibles
-4. Revisa que Docker esté ejecutándose correctamente
+¿Problemas o sugerencias? Abre un issue en
+[el repositorio](https://github.com/brayandiazc/bancolife/issues) o escribe a
+brayandiazc@gmail.com.
+
+## Versionado
+
+Usamos [Git](https://git-scm.com) y seguimos [Semantic Versioning](https://semver.org/).
+Consulta las [etiquetas](https://github.com/brayandiazc/bancolife/tags) y el
+[CHANGELOG](CHANGELOG.md).
+
+## Autores
+
+- **Brayan Díaz C** — _Trabajo inicial_ — [@brayandiazc](https://github.com/brayandiazc)
+
+## Licencia
+
+Este proyecto está bajo la licencia [MIT](LICENSE).
 
 ---
 
-**¡Disfruta usando BancoLite! 🏦✨**
+⌨️ con ❤️ por [@brayandiazc](https://github.com/brayandiazc)
